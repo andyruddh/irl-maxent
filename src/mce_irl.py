@@ -17,13 +17,13 @@ def setup_mdp():
     """
     GRID_SIZE = 4
     # create our world
-    world = W.IcyGridWorld(size=GRID_SIZE, p_slip=0.2)
+    world = W.IcyGridWorld(size=GRID_SIZE, p_slip=0.3)
 
     # set up the reward function
     reward = np.zeros(world.n_states)
 
     reward[-1] = 1.0
-    reward[8] = -0.5
+    reward[8] = 0.0
 
     # set up terminal states
     terminal = [GRID_SIZE**2-1]
@@ -37,7 +37,7 @@ def generate_trajectories(world, reward, terminal):
     Generate some "expert" trajectories.
     """
     # parameters
-    n_trajectories = 200
+    n_trajectories = 20
     discount = 0.7
     weighting = lambda x: x**5
 
@@ -95,7 +95,6 @@ def maxent_causal(world, terminal, trajectories, discount=0.7):
 
     return reward
 
-
 def mce_irl():
 
     cwd = os.getcwd()
@@ -151,7 +150,7 @@ def mce_irl():
     # maximum casal entropy reinforcement learning (non-causal)
     reward_maxcausal = maxent_causal(world, terminal, trajectories)
 
-    print(reward_maxcausal)
+    # print(reward_maxcausal)
 
     # show the computed reward
     ax = plt.figure(num='MaxEnt Reward (Causal)').add_subplot(111)
@@ -163,4 +162,4 @@ def mce_irl():
     print("Done!")
 
     # plt.show()
-    return (reward_maxcausal, world)
+    return (reward_maxcausal, world, terminal)
