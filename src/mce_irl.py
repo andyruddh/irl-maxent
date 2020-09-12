@@ -11,19 +11,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def setup_mdp():
+def setup_mdp(GRID_SIZE, p_slip, avoid_states):
     """
     Set-up our MDP/GridWorld
     """
-    GRID_SIZE = 4
     # create our world
-    world = W.IcyGridWorld(size=GRID_SIZE, p_slip=0.3)
+    world = W.IcyGridWorld(size=GRID_SIZE, p_slip=p_slip)
 
     # set up the reward function
-    reward = np.zeros(world.n_states)
+    # reward = np.zeros(world.n_states)
 
-    reward[-1] = 1.0
-    reward[8] = 0.0
+    reward = np.ones(world.n_states)
+
+    reward[-1] = 10.0
+
+    # Define some obstacles or avoid regions
+    for s in avoid_states:
+        reward[s] = 0
 
     # set up terminal states
     terminal = [GRID_SIZE**2-1]
@@ -37,7 +41,8 @@ def generate_trajectories(world, reward, terminal):
     Generate some "expert" trajectories.
     """
     # parameters
-    n_trajectories = 20
+    n_trajectories = 200
+    print("\nNumber of experts: %d\n" %(n_trajectories))
     discount = 0.7
     weighting = lambda x: x**5
 
@@ -95,7 +100,7 @@ def maxent_causal(world, terminal, trajectories, discount=0.7):
 
     return reward
 
-def mce_irl():
+def mce_irl(grid_size, p_slip, avoid_states):
 
     cwd = os.getcwd()
     fig_dir = "figs"
@@ -109,7 +114,7 @@ def mce_irl():
     }
 
     # set-up mdp
-    world, reward, terminal = setup_mdp()
+    world, reward, terminal = setup_mdp(grid_size, p_slip, avoid_states)
 
     # show our original reward
     ax = plt.figure(num='Original Reward').add_subplot(111)
@@ -120,7 +125,7 @@ def mce_irl():
     plt.savefig(os.path.join(fig_dir, "gt_reward.png"))
 
 
-    print("Generating trajectories ...")
+    print("\nGenerating expert trajectories ...\n")
     # generate "expert" trajectories
     trajectories, expert_policy = generate_trajectories(world, reward, terminal)
 
@@ -146,7 +151,7 @@ def mce_irl():
     plt.draw()
     '''
 
-    print("MCE-IRL")
+    print("\nPerforming MCE-IRL ...\n")
     # maximum casal entropy reinforcement learning (non-causal)
     reward_maxcausal = maxent_causal(world, terminal, trajectories)
 
@@ -159,7 +164,7 @@ def mce_irl():
     plt.draw()
     plt.savefig(os.path.join(fig_dir, "maxent_causal_reward.png"))
 
-    print("Done!")
+    print("\nDone! Rewards learned\n")
 
     # plt.show()
     return (reward_maxcausal, world, terminal)
