@@ -15,17 +15,20 @@ def setup_mdp():
     """
     Set-up our MDP/GridWorld
     """
+    GRID_SIZE = 4
     # create our world
-    world = W.IcyGridWorld(size=5, p_slip=0.2)
+    world = W.IcyGridWorld(size=GRID_SIZE, p_slip=0.2)
 
     # set up the reward function
     reward = np.zeros(world.n_states)
+
     reward[-1] = 1.0
-    reward[8] = 0.65
+    reward[8] = 0
 
     # set up terminal states
-    terminal = [24]
-
+    terminal = [GRID_SIZE**2-1]
+    print(world.n_states)
+    print(reward)
     return world, reward, terminal
 
 
@@ -107,6 +110,8 @@ def main():
     P.plot_state_values(ax, world, reward, **style)
     plt.draw()
 
+
+    print("Generating trajectories ...")
     # generate "expert" trajectories
     trajectories, expert_policy = generate_trajectories(world, reward, terminal)
 
@@ -119,6 +124,8 @@ def main():
 
     plt.draw()
 
+    '''
+    print("ME-IRL ...")
     # maximum entropy reinforcement learning (non-causal)
     reward_maxent = maxent(world, terminal, trajectories)
 
@@ -126,14 +133,22 @@ def main():
     ax = plt.figure(num='MaxEnt Reward').add_subplot(111)
     P.plot_state_values(ax, world, reward_maxent, **style)
     plt.draw()
+    '''
 
+    print("MCE-IRL ...")
     # maximum casal entropy reinforcement learning (non-causal)
     reward_maxcausal = maxent_causal(world, terminal, trajectories)
+
+    print(reward_maxcausal)
 
     # show the computed reward
     ax = plt.figure(num='MaxEnt Reward (Causal)').add_subplot(111)
     P.plot_state_values(ax, world, reward_maxcausal, **style)
     plt.draw()
+
+    value = S.value_iteration(world.p_transition, reward_maxcausal, discount = 0.7)
+    print(value)
+
 
     plt.show()
 
