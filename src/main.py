@@ -95,8 +95,8 @@ def sttl_obstacle_avoid(D, goal, avoid_states):
 def main():
     # Grid-world setup parameters
     grid_size = 5 # grid-world size
-    p_slip = 0.3 # slip. with probability p_slip, agent chooses other 3 actions
-    avoid_states = [7, 8]
+    p_slip = 0.000003 # slip. with probability p_slip, agent chooses other 3 actions. Default 0.3
+    avoid_states = [7, 12]
     
     '''
     Ground-truth MDP reward:
@@ -109,7 +109,7 @@ def main():
     # Generate MCE-IRL rewards from demonstrations
     reward_mce, world, goal = I.mce_irl(grid_size, p_slip, avoid_states)
 
-    discount = 0.7 # same as gamma for value iteration
+    discount = 0.99 # same as gamma for value iteration. Default 0.7
     value = S.value_iteration(world.p_transition, reward_mce, discount)
     weighting = lambda x: x**1 # giving importance to sub-optimal actions
     policy = S.stochastic_policy_from_value(world, value, w=weighting)
@@ -120,23 +120,23 @@ def main():
     # print("Policy Exec\n", policy_exec)
 
     # Randomly sample policies from the learned reward function
-    D = []
-    np.random.seed(0)
-    n_samples = 20
-    for _ in range(n_samples):
-        start = np.random.randint(0, 16)
-        sample = T.generate_trajectory(world, policy_exec, start, goal)
-        # print("Start: %d, Policy:" %(start))
-        D.append(sample)
+    # D = []
+    # np.random.seed(0)
+    # n_samples = 20
+    # for _ in range(n_samples):
+    #     start = np.random.randint(0, 16)
+    #     sample = T.generate_trajectory(world, policy_exec, start, goal)
+    #     # print("Start: %d, Policy:" %(start))
+    #     D.append(sample)
 
-    print("\nTotal samples: %d\n" %(n_samples))
-    # Compute the robustness of goal-reach STTL
-    rho = sttl_goal_reach(D, goal)
-    print("StTL goal-reach robustness = %.2f\n" % (rho))
+    # print("\nTotal samples: %d\n" %(n_samples))
+    # # Compute the robustness of goal-reach STTL
+    # rho = sttl_goal_reach(D, goal)
+    # print("StTL goal-reach robustness = %.2f\n" % (rho))
 
-    # Compute the robustness of obstacle avoidance STTL
-    rho = sttl_obstacle_avoid(D, goal, avoid_states)
-    print("StTL obstacle-avoidance robustness = %.2f\n" % (rho))
+    # # Compute the robustness of obstacle avoidance STTL
+    # rho = sttl_obstacle_avoid(D, goal, avoid_states)
+    # print("StTL obstacle-avoidance robustness = %.2f\n" % (rho))
 
 if __name__ == "__main__":
     main()

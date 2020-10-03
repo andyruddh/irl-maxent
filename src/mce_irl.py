@@ -23,7 +23,7 @@ def setup_mdp(GRID_SIZE, p_slip, avoid_states):
 
     reward = np.ones(world.n_states)
 
-    reward[-1] = 10.0
+    reward[-1] = 2.0
 
     # Define some obstacles or avoid regions
     for s in avoid_states:
@@ -41,7 +41,7 @@ def generate_trajectories(world, reward, terminal):
     Generate some "expert" trajectories.
     """
     # parameters
-    n_trajectories = 200
+    n_trajectories = 1000
     print("\nNumber of experts: %d\n" %(n_trajectories))
     discount = 0.7
     weighting = lambda x: x**5
