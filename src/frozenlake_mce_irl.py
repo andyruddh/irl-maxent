@@ -23,15 +23,14 @@ def setup_mdp(GRID_SIZE, p_slip, avoid_states):
 
     reward = np.ones(world.n_states)
 
-    reward[-1] = 5.0
-    reward[6] = 2.5
+    reward[3] = 2
 
     # Define some obstacles or avoid regions
     for s in avoid_states:
         reward[s] = 0
 
     # set up terminal states
-    terminal = [GRID_SIZE**2-1]
+    terminal = [3]
     # print(world.n_states)
     # print(reward)
     return world, reward, terminal
@@ -42,14 +41,14 @@ def generate_trajectories(world, reward, terminal):
     Generate some "expert" trajectories.
     """
     # parameters
-    n_trajectories = 300
+    n_trajectories = 5
     print("\nNumber of experts: %d\n" %(n_trajectories))
     discount = 0.7
     weighting = lambda x: x**5
 
     # set up initial probabilities for trajectory generation
     initial = np.zeros(world.n_states)
-    initial[0] = 1.0
+    initial[12] = 1.0
 
     # generate trajectories
     value = S.value_iteration(world.p_transition, reward, discount)

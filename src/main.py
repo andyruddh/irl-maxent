@@ -7,6 +7,7 @@ import trajectory as T
 import solver as S
 import optimizer as O
 import mce_irl as I
+# import frozenlake_mce_irl as I
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -94,10 +95,10 @@ def sttl_obstacle_avoid(D, goal, avoid_states):
 
 def main():
     # Grid-world setup parameters
-    grid_size = 5 # grid-world size
+    grid_size = 7 # grid-world size
     p_slip = 0.000003 # slip. with probability p_slip, agent chooses other 3 actions. Default 0.3
-    avoid_states = [7, 12]
-    
+    avoid_states = [0, 7, 9, 11] # for 4x4 Frozenlake
+    avoid_states = [2, 3, 4, 9, 10, 11, 37, 38, 39, 44, 45, 46]    
     '''
     Ground-truth MDP reward:
         1. reaching the goal gets a reward of +10
