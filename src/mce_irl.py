@@ -23,8 +23,8 @@ def setup_mdp(GRID_SIZE, p_slip, avoid_states):
 
     reward = np.ones(world.n_states)
 
-    reward[-1] = 5.0
-    reward[6] = 2.5
+    reward[-1] = 3.0
+    # reward[6] = 2.5
 
     # Define some obstacles or avoid regions
     for s in avoid_states:
@@ -44,7 +44,7 @@ def generate_trajectories(world, reward, terminal):
     # parameters
     n_trajectories = 300
     print("\nNumber of experts: %d\n" %(n_trajectories))
-    discount = 0.7
+    discount = 0.9
     weighting = lambda x: x**5
 
     # set up initial probabilities for trajectory generation
@@ -60,13 +60,13 @@ def generate_trajectories(world, reward, terminal):
     return tjs, policy
 
 
-def maxent(world, terminal, trajectories):
+def maxent(world, terminal, trajectories, avoid_states=None):
     """
     Maximum Entropy Inverse Reinforcement Learning
     """
     # set up features: we use one feature vector per state
-    features = W.state_features(world)
-
+    # features = W.state_features(world)
+    features = W.state_custom_features(world, avoid_states, terminal)
     # choose our parameter initialization strategy:
     #   initialize parameters with constant
     init = O.Constant(1.0)
@@ -81,12 +81,13 @@ def maxent(world, terminal, trajectories):
     return reward
 
 
-def maxent_causal(world, terminal, trajectories, discount=0.7):
+def maxent_causal(world, avoid_states, terminal, trajectories, discount=0.7):
     """
     Maximum Causal Entropy Inverse Reinforcement Learning
     """
     # set up features: we use one feature vector per state
-    features = W.state_features(world)
+    features = W.state_custom_features(world, avoid_states, terminal)
+    # features = W.state_features(world)
 
     # choose our parameter initialization strategy:
     #   initialize parameters with constant
@@ -154,7 +155,8 @@ def mce_irl(grid_size, p_slip, avoid_states):
 
     print("\nPerforming MCE-IRL ...\n")
     # maximum casal entropy reinforcement learning (non-causal)
-    reward_maxcausal = maxent_causal(world, terminal, trajectories)
+    # reward_maxcausal = maxent_causal(world, avoid_states, terminal, trajectories)
+    reward_maxcausal = maxent(world, terminal, trajectories, avoid_states)
 
     # print(reward_maxcausal)
 

@@ -19,6 +19,8 @@ Some general remarks:
 import numpy as np
 from itertools import product
 
+from numpy.core.numeric import identity
+
 
 class GridWorld:
     """
@@ -266,6 +268,36 @@ def state_features(world):
         The coordinate-feature-matrix for the specified world.
     """
     return np.identity(world.n_states)
+
+def state_custom_features(world, obstacles=None, terminal=None):
+    """
+    Return the feature matrix assigning each state with an individual
+    feature (i.e. an identity matrix of size n_states * n_states).
+
+    Rows represent individual states, columns the feature entries.
+
+    Args:
+        world: A GridWorld instance for which the feature-matrix should be
+            computed.
+
+    Returns:
+        The coordinate-feature-matrix for the specified world.
+    """
+    feature_mat = np.zeros((world.n_states, 3))
+    for i in range(world.n_states):
+        if i in obstacles:
+            feature_mat[i, 1] = 1
+        elif i in terminal:
+            feature_mat[i, 2] = 1
+        else:
+            feature_mat[i, 0] = 1
+    # print(feature_mat)
+    identity = np.identity(world.n_states)
+    feature_mat = np.hstack((identity, feature_mat))
+    # print(feature_mat.shape, np.identity(world.n_states).shape)
+    # return np.identity(world.n_states)
+    print(feature_mat.shape)
+    return feature_mat
 
 
 def coordinate_features(world):

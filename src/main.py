@@ -12,6 +12,7 @@ import mce_irl as I
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import time
 
 def get_policy(start):
     pass
@@ -95,10 +96,17 @@ def sttl_obstacle_avoid(D, goal, avoid_states):
 
 def main():
     # Grid-world setup parameters
-    grid_size = 7 # grid-world size
-    p_slip = 0.000003 # slip. with probability p_slip, agent chooses other 3 actions. Default 0.3
-    avoid_states = [0, 7, 9, 11] # for 4x4 Frozenlake
-    avoid_states = [2, 3, 4, 9, 10, 11, 37, 38, 39, 44, 45, 46]    
+    grid_size = 8 # grid-world size
+    p_slip = 0.2 # slip. with probability p_slip, agent chooses other 3 actions. Default 0.3
+    # avoid_states = [7, 9, 11] # for 4x4 Frozenlake
+    # avoid_states = [19, 29, 35, 41, 42, 49, 52, 54, 59] # for 8x8 Frozenlake
+    # avoid_states = [3, 8, 13, 11, 16, 21]
+    # avoid_states = [7, 12] # 5x5
+    # avoid_states = [17, 24, 31] # 7x7
+    # avoid_states = [2, 3, 4, 9, 10, 11, 37, 38, 39, 44, 45, 46]    
+    # avoid_states = [9]
+    # avoid_states = [2, 7, 22]
+    avoid_states = [3, 9, 12, 14, 17, 18, 22, 27, 37, 43]    
     '''
     Ground-truth MDP reward:
         1. reaching the goal gets a reward of +10
@@ -108,7 +116,10 @@ def main():
     so I manually designed the ground-truth rewards.
     '''
     # Generate MCE-IRL rewards from demonstrations
+    start_time = time.time()
     reward_mce, world, goal = I.mce_irl(grid_size, p_slip, avoid_states)
+    end_time = time.time()
+    print("Execution time in s: %.3f" %(end_time - start_time))
 
     discount = 0.99 # same as gamma for value iteration. Default 0.7
     value = S.value_iteration(world.p_transition, reward_mce, discount)
